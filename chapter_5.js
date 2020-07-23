@@ -40,9 +40,9 @@ noisy(Math.min)(3, 2, 1);
 // → called with [3, 2, 1] , returned 1
 
 /*
-Here is a function exactly like the one above except it has 2 nested functions, the first being
-printToConsole, the second printy.  The nesting of functions and therefore function calls is
-endless
+Here is a function exactly like the one above except it has 2 nested functions instead of 1, the first being
+printToConsole, the second printy.  The nesting of functions and therefore function calls can go on for as
+long as you want.
 */
 function nestedFunction(f) {
   return x => {
@@ -66,3 +66,50 @@ nestedFunction(printToConsole)(printy)("foo bar");
 // → "foo bar"
 // → "foo bar"
 // → "foo bar"
+
+/*
+The function repeat would ordinarily repeat an action n times (3 in this example), but then why are there only two outputs?
+Ask yourself, how would I define what the variable test refers to in unless()? Although it seems the place for a function,
+in this example it is NOT.  It's just a snippet of code, a logial expression containing a variable that resolves to either
+true or false.
+Let's follow the control flow: repeat() is called and begins to run its for loop, defining i initially as 0, then action()
+is called.
+The function action(), being within the scope of repeat(), has access to any value defined in repeat(). Any of those values
+could be passed to action() as an argument, in this example i (the iterator) is passed as an argument to action().
+By calling action() with an arg of i, the function that the variable "action" points to must now be designed to take
+in a parameter if it wishes access to it.
+action() begins by calling unless(). Since unless() is within the scope of action(), unless() can use any value declared in action()...
+this includes any args/params passed to action()
+unless() begins with an if statement that only if satisfied will run then(), in this case the console.log
+Where are we now? ...STILL IN THE repeat() FOR LOOP, we iterate i, call action() and it all starts over...
+assuming n is greater than 1!
+To answer the first line of this comment, there are only two outputs because the console.log() was nested inside of unless(), inside of then().
+unless() and then() interrupted the previous control flow to the console.log() by placing an if statement before it ("test").   
+
+*/
+
+function repeat(n, action) {
+  for (let i = 0; i < n; i++) {
+    action(i);
+  }
+}
+
+function unless(test, then) {
+  // will only run then() if the test fails
+  if (!test) then();
+}
+
+repeat(3, i => {
+  unless(i % 2 == 1, () => {
+    console.log(i, "is even");
+  });
+});
+// → 0 is even
+// → 2 is even
+
+// rewritten without arrow function
+repeat(3, function(i) {
+  unless(i % 2 == 1, () => {
+    console.log(i, "is even");
+  });
+});
