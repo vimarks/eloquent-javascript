@@ -44,6 +44,7 @@ Here is a function exactly like the one above except it has 2 nested functions i
 printToConsole, the second printy.  The nesting of functions and therefore function calls can go on for as
 long as you want.
 */
+
 function nestedFunction(f) {
   return x => {
     return f(x);
@@ -72,8 +73,7 @@ The function repeat would ordinarily repeat an action n times (3 in this example
 Ask yourself, how would I define what the variable test refers to in unless()? Although it seems the place for a function,
 in this example it is NOT.  It's just a snippet of code, a logial expression containing a variable that resolves to either
 true or false.
-Let's follow the control flow: repeat() is called and begins to run its for loop, defining i initially as 0, then action()
-is called.
+Let's follow the control flow: repeat() is called and begins to run its for loop, defining i initially as 0, then action() is called.
 The function action(), being within the scope of repeat(), has access to any value defined in repeat(). Any of those values
 could be passed to action() as an argument, in this example i (the iterator) is passed as an argument to action().
 By calling action() with an arg of i, the function that the variable "action" points to must now be designed to take
@@ -84,8 +84,7 @@ unless() begins with an if statement that only if satisfied will run then(), in 
 Where are we now? ...STILL IN THE repeat() FOR LOOP, we iterate i, call action() and it all starts over...
 assuming n is greater than 1!
 To answer the first line of this comment, there are only two outputs because the console.log() was nested inside of unless(), inside of then().
-unless() and then() interrupted the previous control flow to the console.log() by placing an if statement before it ("test").   
-
+unless() and then() interrupted the previous control flow to the console.log() by placing an if statement before ("test").
 */
 
 function repeat(n, action) {
@@ -113,3 +112,72 @@ repeat(3, function(i) {
     console.log(i, "is even");
   });
 });
+
+/*
+The standard function reduce() takes up to two arguments, its first being an arrow function that itself takes two
+arguments. The first is an accumulator, this value will interact in some fashion with every element of the array that reduce() is called upon.
+How the accumulator interacts with each element of the array is defined the body of the arrow function.
+The 2nd argument of the arrow function represents the current element of the array that the accumulator is interacting with.
+This current element will iterate over every element of the array that reduce is being called upon.
+The 2nd/last argument of reduce() sets the accumulator's starting value, if this argument is not given
+the accumulator's default starting value will be the array's first element.
+ */
+
+function reduce(array, combine, start) {
+  let current = start;
+  for (let element of array) {
+    current = combine(current, element);
+  }
+  return current;
+}
+
+console.log(reduce([1, 2, 3, 4], (a, b) => a + b, 0));
+// → 10
+
+/*
+In this example script.ranges is an array filled with arrays. [ [100,200],[500,600],[1000,2000] ]
+The accumulator is represented by the variabl count, and based on the last argument given to reduce(),
+it is initiated with the value of 0.
+The current value of the array being reduced, is represented by [from, to], an array destructured
+into its two elements ( the lower and upper bound of the unicode range )
+For each element of script.ranges the difference of to - from is added to count.
+*/
+function characterCount(script) {
+  return script.ranges.reduce((count, [from, to]) => {
+    return count + (to - from);
+  }, 0);
+}
+
+/*
+What is the return of characterCount()?
+a number that represents the amount of characters in a language
+If we wanted to find out which language had the highest number of characters, we would have to run
+characterCount() on all of them and then compare the results, looking for the highest number.
+This is what the example below does.
+Since a 2nd arg to reduce is NOT given, the default start value of a is the first element of the array
+we are reducing(SCRIPTS), so an object that looks like this:
+
+{
+  name: "Coptic",
+  ranges: [[994, 1008], [11392, 11508], [11513, 11520]],
+  direction: "ltr",
+  year: -200,
+  living: false,
+  link: "https://en.wikipedia.org/wiki/Coptic_alphabet"
+}
+
+SCRIPTS.reduce() will be iterating through objects like the one above and calling characterCount()
+with each of them as the argument.  For each iteration of reduce, its return will equal the new accumulator.
+In this example of reduce, the accumulator represents the language with the largest characterCount we have seen
+so far.  If the current language that it is being compared to has more characters, the accumulator will become
+THAT language, if not the accumulator will remain the same.
+Although languages are compared on characterCount(), the return is a language object like the one above.
+*/
+
+console.log(
+  SCRIPTS.reduce((a, b) => {
+    // if language a has more chars return a as the accumulator, if language b has more, return b as the accumulator
+    return characterCount(a) < characterCount(b) ? b : a;
+  })
+);
+// → {name: "Han", …}
