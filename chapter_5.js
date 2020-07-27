@@ -181,3 +181,47 @@ console.log(
   })
 );
 // → {name: "Han", …}
+
+/*
+filter produces an array with just script objects whose 'living' property points to true
+map produces an array the same size as the filtered array, but modifies each element by invoking its year property
+so after filter and map, we have an array of numbers that correspond to the years of living languages
+*/
+console.log(
+  Math.round(average(SCRIPTS.filter(s => s.living).map(s => s.year)))
+);
+// → 1165
+console.log(
+  Math.round(average(SCRIPTS.filter(s => !s.living).map(s => s.year)))
+);
+// → 204
+function average(array) {
+  return array.reduce((a, b) => a + b) / array.length;
+}
+
+/*
+characterScript takes a single character code as an argument.  Knowing that each script object has a property called 'ranges', containing
+ an array of 2 element long arrays(from, to) we have to ask the question, does the character code given as an argument fall within
+any of the 2 element arrays of the script objects being looped through? This example achieves this through the standard function some()
+some() returns a boolean and is therefore useful in if statements, it will return 'true' if at least one element of the array it is being
+called upon returns 'true' and will return false only if all elements of the array return 'false'.  In this example the argument given to
+some() is a destructured array, with the variables 'from' and 'to', representing the 2 elements in the sub arrays of the ranges array.
+As soon as any script's 'from' and 'to' satisfy some()'s test, some() will return 'true', if 0 script objects
+return true, some() will return false. some() is performed on each script object, until one returns true... one 'true' is all some() needs to
+resolve as 'true', it will then return the script object that satisfied the if statement.
+*/
+function characterScript(code) {
+  for (let script of SCRIPTS) {
+    if (
+      script.ranges.some(([from, to]) => {
+        return code >= from && code < to;
+      })
+    ) {
+      return script;
+    }
+  }
+  return null;
+}
+
+console.log(characterScript(121));
+// → {name: "Latin", …}
