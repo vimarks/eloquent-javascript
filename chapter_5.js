@@ -200,15 +200,24 @@ function average(array) {
 }
 
 /*
+Using a function within a fuction is a sign of a higher order function, but it is also a good technique
+for impoving a function's composability, or readability.  Methods like .filter(), .map(), .reduce(), .some()
+are all great tools for doing more in less confusing ways. While they may be more taxing on the computer thanks
+simple loops and counters that deal with just numbers, they may be worth the readability they provide.
+A program can only be as complex as one you can understand.
+*/
+
+/*
 characterScript takes a single character code as an argument.  Knowing that each script object has a property called 'ranges', containing
  an array of 2 element long arrays(from, to) we have to ask the question, does the character code given as an argument fall within
-any of the 2 element arrays of the script objects being looped through? This example achieves this through the standard function some()
+any of the 2 element arrays of the script objects being looped through?
+This example achieves this through the standard function some()
 some() returns a boolean and is therefore useful in if statements, it will return 'true' if at least one element of the array it is being
-called upon returns 'true' and will return false only if all elements of the array return 'false'.  In this example the argument given to
-some() is a destructured array, with the variables 'from' and 'to', representing the 2 elements in the sub arrays of the ranges array.
-As soon as any script's 'from' and 'to' satisfy some()'s test, some() will return 'true', if 0 script objects
-return true, some() will return false. some() is performed on each script object, until one returns true... one 'true' is all some() needs to
-resolve as 'true', it will then return the script object that satisfied the if statement.
+called upon satisfies its test case and returns 'true'. It will return 'false' only if none of the elements satisfy its test case.
+In this example the argument given to some() is a destructured array, with the variables 'from' and 'to', representing the 2 elements
+in the sub arrays of the ranges array. As soon as any script's 'from' and 'to' satisfy some()'s test, some() will return 'true',
+if 0 script objects return true, some() will return false. some() is performed on each script object, until one returns true...
+one 'true' is all some() needs to resolve as 'true', it will then return the script object that satisfied the if statement.
 */
 function characterScript(code) {
   for (let script of SCRIPTS) {
@@ -225,3 +234,82 @@ function characterScript(code) {
 
 console.log(characterScript(121));
 // → {name: "Latin", …}
+
+/*
+-The function textScripts expects a string of text, textScripts() identifies the script.name of each character in the text string
+and calculates each script.name's percentage
+textScripts() is a higher order function, so it calls functions within it's body (some of which are higher order functions themselves)
+those inner functions include:
+
+-characterScript() takes in a character code, and returns the script object it belongs to.
+
+-countBy(), first argument is an iterable object ( string, array, etc, any object with an iterable property ),
+second argument, groupName, represents a function that expects an element of the first argument (iterable object).
+In this case: groupName() in textScripts() contains characterScript().
+Let's talk about the function that groupName represents in this example.
+It is written as an arrow function in the parameter declaration parentheses of countBy(). It takes the the argument that it
+expects ( an element of the iterable object represented by 'items' ), char in this case, and promptly passes it to
+characterScript(), equaling its return to a variable called 'script'. More exactly, the arrow function passes the unicode
+translation of char to characterScript(), because that is what it expects...
+it is going to check to see which ranges array the code falls into ... [from, to] remember!? and return the script object,
+BUT groupName doesn't want the WHOLE script object that a certain character belongs to, it just wants the name,
+so the last line of the arrow function returns script.name, or 'none' if 'script' equals null.
+the arrow function that represents groupName is now done, BUT countBy is NOT!
+We have just returned a value for the variable 'name', the next line of countBy() defines the variable 'known'
+'known' is either a positive integer or -1, findIndex() will either return a positive integer, meaning it has found
+an element that satisfies its condition and has returned its index, or -1 if none of the elements satisfty the condition.
+In the case of countBy, a summary of 'know':
+If findIndex() returns -1, push {name: name, count: 1} into counts.
+Just name is used in the example because if you put just a variable in to an object, a tuple will be made. "variableName": "variableValue"
+If 'know' does not come back as -1, it is because an object with the same name property already exists in counts.  In order
+to increase the count of that specific object we write count[known].count++
+This snippet of code finds the object at index 'known' in counts and then reads its count property and adds 1 to it.
+countBy() returns an array of objects, THEEEN it's done.
+Control then shifts to .filter, which selects only the objects where name does not equal 'none', so 'scripts', the first
+variable declared in textScripts is now finally defined.  It is an array of objects that look like this:
+[{name: 'Han', count: 3}, {...}, {...}]
+the arg for filter is worth looking at, it is a destructured object, filter(({name}) => name != "none"),
+{name} looks at each element of 'counts' for that element's 'name' property and the value it points to.
+Any character that did not return a script/belong to any known script, is not included in this list.
+'scripts' is then reduced in order to find the total number of chars, we want to add all of the objects 'count' properties
+together. This gives us the total number of chars for which we have found their mother script.
+For the last step, .map is run on 'scripts'. With name and count as variables from each destructured object of 'scripts'
+a presntational line of string interpolation is composed along with the 'total' variable to calculate the percent each
+language makes up of the text.
+*/
+
+function countBy(items, groupName) {
+  let counts = [];
+  for (let item of items) {
+    let name = groupName(item);
+    let known = counts.findIndex(c => c.name == name);
+    if (known == -1) {
+      counts.push({ name, count: 1 });
+    } else {
+      counts[known].count++;
+    }
+  }
+  return counts;
+}
+
+console.log(countBy([1, 2, 3, 4, 5], n => n > 2));
+// → [{name: false, count: 2}, {name: true, count: 3}]
+
+function textScripts(text) {
+  let scripts = countBy(text, char => {
+    let script = characterScript(char.codePointAt(0));
+    return script ? script.name : "none";
+  }).filter(({ name }) => name != "none");
+
+  let total = scripts.reduce((n, { count }) => n + count, 0);
+  if (total == 0) return "No scripts found";
+
+  return scripts
+    .map(({ name, count }) => {
+      return `${Math.round((count * 100) / total)}% ${name}`;
+    })
+    .join(", ");
+}
+
+console.log(textScripts('英国的狗说"woof", 俄罗斯的狗说"тяв"'));
+// → 61% Han, 22% Latin, 17% Cyrillic
