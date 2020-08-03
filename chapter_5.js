@@ -247,7 +247,7 @@ those inner functions include:
 second argument, groupName, represents a function that expects an element of the first argument (iterable object).
 In this case: groupName() in textScripts() contains characterScript().
 Let's talk about the function that groupName represents in this example.
-It is written as an arrow function in the parameter declaration parentheses of countBy(). It takes the the argument that it
+It is written as an arrow callback function in the parameter declaration parentheses of countBy(). It takes the the argument that it
 expects ( an element of the iterable object represented by 'items' ), char in this case, and promptly passes it to
 characterScript(), equaling its return to a variable called 'script'. More exactly, the arrow function passes the unicode
 translation of char to characterScript(), because that is what it expects...
@@ -313,3 +313,33 @@ function textScripts(text) {
 
 console.log(textScripts('英国的狗说"woof", 俄罗斯的狗说"тяв"'));
 // → 61% Han, 22% Latin, 17% Cyrillic
+
+/*
+Exercise #1
+  In order to add two arrays into one it's a simple concatination, with arrayA.concat(arrayB)
+  Doing with more than two is where reduce comes in handy.  a, the accumulator can concatinate each following array
+  one at a time, so it's always as easy as our first example a.concat(b), the difference is that a is a snowball, assimilating
+  b everytime.  The first is written with brackets and returns, the second example is only allowed if the code fits on one line.
+*/
+
+console.log(
+  arrays.reduce((a, b) => {
+    return a.concat(b);
+  })
+);
+
+console.log(arrays.reduce((a, b) => a.concat(b)));
+
+function loop(value, test, update, body) {
+  if (test(value)) {
+    body(value);
+    value = update(value);
+    loop(value, test, update, body);
+  } else return;
+}
+
+function loop(value, test, update, body) {
+  for (let i = value; test(i); i = update(i)) {
+    body(i);
+  }
+}
