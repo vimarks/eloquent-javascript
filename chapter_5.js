@@ -330,6 +330,7 @@ console.log(
 
 console.log(arrays.reduce((a, b) => a.concat(b)));
 
+// Exercise #2 recursive solution
 function loop(value, test, update, body) {
   if (test(value)) {
     body(value);
@@ -337,7 +338,7 @@ function loop(value, test, update, body) {
     loop(value, test, update, body);
   } else return;
 }
-
+// iterative solution
 function loop(value, test, update, body) {
   for (let i = value; test(i); i = update(i)) {
     body(i);
