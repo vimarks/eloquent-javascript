@@ -149,7 +149,7 @@ let blackRabbit = new Rabbit("black");
 
 /*
 here is the declaring of a class via expression, as opposed to statement.
-a class declaration, constructor functions may be omited completely..apparently .
+a class declaration, constructor functions may be omitted completely..apparently .
 */
 let object = new (class {
   getWord() {
@@ -158,3 +158,56 @@ let object = new (class {
 })();
 console.log(object.getWord());
 // → hello
+
+/*
+killerRabbit is an instance of the class Rabbit, since Rabbit is automatically set as killerRabbit's prototype, through the constructor's prototype property.
+the instance has the same teeth property as its parent.
+If killerRabbit is assigned its own teeth property, killerRabbit.teeth = "long, etc", this overides its inherited property.
+prototypal inheritance takes care of generic properties, but if there is an instance with an exception, the default property can be replaced
+on that specific instance.
+*/
+Rabbit.prototype.teeth = "small";
+console.log(killerRabbit.teeth);
+// → small
+killerRabbit.teeth = "long, sharp, and bloody";
+console.log(killerRabbit.teeth);
+// → long, sharp, and bloody
+console.log(blackRabbit.teeth);
+// → small
+console.log(Rabbit.prototype.teeth);
+// → small
+/*
+a method like toString() originates at the top level, Object.prototype and is passed down to its children (Array.prototype, Function.prototype)
+but, array requires a different version of the toString() method in order to work on arrays.
+Arrays are an exceptional instance of Object.prototype's and require a personal toString() method.
+*/
+console.log(Array.prototype.toString == Object.prototype.toString);
+// → false
+console.log([1, 2].toString());
+// → 1,2
+
+console.log(Object.prototype.toString.call([1, 2]));
+// → [object Array]
+/*
+a Map is a data structure baked into JS, newMap = new Map(), the class Map constructor is called with no params, and a Map is returned.
+Map has set, get, size and has methods.  Maps are useful because they accept non string data types as keys, can be iterated through, start
+completely empty instead of with all prototype of a plain object, as below.
+*/
+let ages = {
+  Boris: 39,
+  Liang: 22,
+  Júlia: 62
+};
+
+console.log(`Júlia is ${ages["Júlia"]}`);
+// → Júlia is 62
+console.log("Is Jack's age known?", "Jack" in ages);
+// → Is Jack's age known? false
+console.log("Is toString's age known?", "toString" in ages);
+// → Is toString's age known? true
+console.log(ages.toString());
+
+/*
+Polymorphism allows for flexible, dynamic, and reusable code.  It is based on the idea that code should know as little as possible about the
+object/s it is dealing with. 
+*/

@@ -120,3 +120,43 @@ function phi([n00, n01, n10, n11]) {
     Math.sqrt((n10 + n11) * (n00 + n01) * (n01 + n11) * (n00 + n10))
   );
 }
+
+/*
+What could a or b contain?
+1) primitive data types (number,string,bigint,boolean,undefined, symbol)
+2) custom data types ( arrays, objects, functions) i think for the purposes of this example, we are not expecting a or b to be a function
+
+when comparing primitive dt's "===" compares on type and value, when comparing custom dt's "===" compares on memory location.
+If we do not return true after the fist line, we can assume that we are dealing with:
+1) two primitive dt's that do not have the same type and value
+2) two custom dt's that are not located at the same memory address
+3) one primitive dt and one custom dt
+
+we could say that at this point that if either a or b are a primitive dt, they cannot be "===" (return false)
+we also have to deal with null... because typof null returns 'object', we have to check to see if either a or b are null.
+if either are, they cannot be equal because the only statement that returns true: null === null, was checked for on the previous line.
+OK, so now when we define keysA, keysB we know that we are dealing with two objects.
+we get their keys into arrays, check their length
+loop through one of the key arrays...
+check to see if the key your are iterating over is included in the other array, if not... return false
+if both arrays DO include a key, take each corresponding value and recursively call deepEqual with them.
+and it starts over, what could a or b contain?
+if the keys arrays aren't identical || deepEqual comes back false we return false, otherwise true
+*/
+function deepEqual(a, b) {
+  if (a === b) return true;
+
+  if (a == null || typeof a != "object" || b == null || typeof b != "object")
+    return false;
+
+  let keysA = Object.keys(a),
+    keysB = Object.keys(b);
+
+  if (keysA.length != keysB.length) return false;
+
+  for (let key of keysA) {
+    if (!keysB.includes(key) || !deepEqual(a[key], b[key])) return false;
+  }
+
+  return true;
+}
