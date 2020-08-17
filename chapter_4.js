@@ -122,6 +122,8 @@ function phi([n00, n01, n10, n11]) {
 }
 
 /*
+# DEEP COMPARISON
+
 What could a or b contain?
 1) primitive data types (number,string,bigint,boolean,undefined, symbol)
 2) custom data types ( arrays, objects, functions) i think for the purposes of this example, we are not expecting a or b to be a function

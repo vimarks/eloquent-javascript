@@ -344,3 +344,42 @@ function loop(value, test, update, body) {
     body(i);
   }
 }
+
+/*
+Exercise #3
+  every will only return true if every test passes.  the loop runs the test on every element of the array, if !true is returned evend once,
+  the outer scope will return false.
+  In order to never trip that if statement, every element must pass the test.
+*/
+
+function every(array, test) {
+  for (element of array) {
+    if (!test(element)) return false;
+  }
+  return true;
+}
+
+/*
+a dfferent way of saying what .some does:
+  if at least one element returns true to the chosen predicate, .some will return true. If not even one element is true (.some returns false)
+                                  if at least one element fails, every() should return false
+                                  if at least one element is true some() will return true...so we have to make failiures return as true.
+  that is the reason for the second '!'. failures to the test predicate register as true,so if one fails,
+  .some will return true which for the every function is a false.
+*/
+
+function every(array, test) {
+  return !array.some(element => !test(element));
+}
+console.log(every([1, 3, 5, 11, 12, 13], n => n < 10));
+
+function some(array, test) {
+  for (element of array) {
+    if (test(element)) return true;
+  }
+  return false;
+}
+
+function some(array, test) {
+  return array.every(element => test(element));
+}
