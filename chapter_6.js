@@ -209,5 +209,5 @@ console.log(ages.toString());
 
 /*
 Polymorphism allows for flexible, dynamic, and reusable code.  It is based on the idea that code should know as little as possible about the
-object/s it is dealing with. 
+object/s it deals with.
 */
