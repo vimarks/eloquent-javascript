@@ -72,7 +72,7 @@ nestedFunction(printToConsole)(printy)("foo bar");
 The function repeat would ordinarily repeat an action n times (3 in this example), but then why are there only two outputs?
 Ask yourself, how would I define what the variable test refers to in unless()? Although it seems the place for a function,
 in this example it is NOT.  It's just a snippet of code, a logial expression containing a variable that resolves to either
-true or false.
+true or false, a predicate.
 Let's follow the control flow: repeat() is called and begins to run its for loop, defining i initially as 0, then action() is called.
 The function action(), being within the scope of repeat(), has access to any value defined in repeat(). Any of those values
 could be passed to action() as an argument, in this example i (the iterator) is passed as an argument to action().
@@ -83,7 +83,8 @@ this includes any args/params passed to action()
 unless() begins with an if statement that only if satisfied will run then(), in this case the console.log
 Where are we now? ...STILL IN THE repeat() FOR LOOP, we iterate i, call action() and it all starts over...
 assuming n is greater than 1!
-To answer the first line of this comment, there are only two outputs because the console.log() was nested inside of unless(), inside of then().
+To answer the first line of this comment, there are only two outputs because the console.log() was nested inside of unless(), inside of then(),
+inside of action!
 unless() and then() interrupted the previous control flow to the console.log() by placing an if statement before ("test").
 */
 
@@ -136,10 +137,10 @@ console.log(reduce([1, 2, 3, 4], (a, b) => a + b, 0));
 
 /*
 In this example script.ranges is an array filled with arrays. [ [100,200],[500,600],[1000,2000] ]
-The accumulator is represented by the variabl count, and based on the last argument given to reduce(),
+The accumulator is represented by the variable "count", and based on the last argument given to reduce(),
 it is initiated with the value of 0.
 The current value of the array being reduced, is represented by [from, to], an array destructured
-into its two elements ( the lower and upper bound of the unicode range )
+into its first two elements ( the lower and upper bound of the unicode range )
 For each element of script.ranges the difference of to - from is added to count.
 */
 function characterCount(script) {
@@ -202,7 +203,7 @@ function average(array) {
 /*
 Using a function within a fuction is a sign of a higher order function, but it is also a good technique
 for impoving a function's composability, or readability.  Methods like .filter(), .map(), .reduce(), .some()
-are all great tools for doing more in less confusing ways. While they may be more taxing on the computer thanks
+are all great tools for doing more in less confusing ways. While they may be more taxing on the computer than
 simple loops and counters that deal with just numbers, they may be worth the readability they provide.
 A program can only be as complex as one you can understand.
 */
@@ -238,17 +239,17 @@ console.log(characterScript(121));
 /*
 -The function textScripts expects a string of text, textScripts() identifies the script.name of each character in the text string
 and calculates each script.name's percentage
-textScripts() is a higher order function, so it calls functions within it's body (some of which are higher order functions themselves)
+textScripts() is a higher order function, so it calls functions within its body (some of which are higher order functions themselves)
 those inner functions include:
 
 -characterScript() takes in a character code, and returns the script object it belongs to.
 
--countBy(), first argument is an iterable object ( string, array, etc, any object with an iterable property ),
+-countBy(), first argument is an iterable object (string, array, etc, any object with an iterable property),
 second argument, groupName, represents a function that expects an element of the first argument (iterable object).
 In this case: groupName() in textScripts() contains characterScript().
 Let's talk about the function that groupName represents in this example.
 It is written as an arrow callback function in the parameter declaration parentheses of countBy(). It takes the the argument that it
-expects ( an element of the iterable object represented by 'items' ), char in this case, and promptly passes it to
+expects (an element of the iterable object represented by 'items'), char in this case, and promptly passes it to
 characterScript(), equaling its return to a variable called 'script'. More exactly, the arrow function passes the unicode
 translation of char to characterScript(), because that is what it expects...
 it is going to check to see which ranges array the code falls into ... [from, to] remember!? and return the script object,
@@ -258,10 +259,10 @@ the arrow function that represents groupName is now done, BUT countBy is NOT!
 We have just returned a value for the variable 'name', the next line of countBy() defines the variable 'known'
 'known' is either a positive integer or -1, findIndex() will either return a positive integer, meaning it has found
 an element that satisfies its condition and has returned its index, or -1 if none of the elements satisfty the condition.
-In the case of countBy, a summary of 'know':
+In the case of countBy, a summary of 'known':
 If findIndex() returns -1, push {name: name, count: 1} into counts.
 Just name is used in the example because if you put just a variable in to an object, a tuple will be made. "variableName": "variableValue"
-If 'know' does not come back as -1, it is because an object with the same name property already exists in counts.  In order
+If 'known' does not come back as -1, it is because an object with the same name property already exists in counts.  In order
 to increase the count of that specific object we write count[known].count++
 This snippet of code finds the object at index 'known' in counts and then reads its count property and adds 1 to it.
 countBy() returns an array of objects, THEEEN it's done.
@@ -274,7 +275,7 @@ Any character that did not return a script/belong to any known script, is not in
 'scripts' is then reduced in order to find the total number of chars, we want to add all of the objects 'count' properties
 together. This gives us the total number of chars for which we have found their mother script.
 For the last step, .map is run on 'scripts'. With name and count as variables from each destructured object of 'scripts'
-a presntational line of string interpolation is composed along with the 'total' variable to calculate the percent each
+a presentational line of string interpolation is composed along with the 'total' variable to calculate the percent each
 language makes up of the text.
 */
 
@@ -373,6 +374,10 @@ function every(array, test) {
 }
 console.log(every([1, 3, 5, 11, 12, 13], n => n < 10));
 
+/*
+the other way around is more straight forward because .every's return holds true for .some's
+*/
+
 function some(array, test) {
   for (element of array) {
     if (test(element)) return true;
@@ -382,4 +387,45 @@ function some(array, test) {
 
 function some(array, test) {
   return array.every(element => test(element));
+}
+
+/*
+Exercise #4
+  we will use a slightly modified countBy function, since we are interested in a script's "direction" property, and not "name" property.
+  countBy will then create an array of objects that look like: {direction: "ltr", count: "5"}
+  that object represents all the characters in the given string that have an "ltr" direction.
+  countBy() does all the work for us, we pass it a char, it promptly passes it to characterScript(), which will tell us which script that char unicode
+  falls within. then countBy() checks to see if we have seen that direction before (if counts contains on obj with a direction property that equals
+  the current char's direction) if not, countBy() will push an object {direction: direction, count: 1}, it it has seen that direction before it will
+  look up the object with that direction and add one to the count.
+
+  we filter the resulting counts array, removing any who's direction property points to "none"
+  and then reduce that array, returning the object with the highest count. 
+*/
+function dominantDirection(text) {
+  let scripts = countBy(text, char => {
+    let script = characterScript(char.codePointAt(0));
+    return script ? script.direction : "none";
+  }).filter(({ direction }) => direction !== "none");
+
+  // scripts is now [{name:"ltr", count: 5}, {...}, {...}]
+  let mostChars = scripts.reduce((a, b) => (a.count > b.count ? a : b));
+  return mostChars.direction;
+}
+
+/*
+modified countBy that is used to find script direction instead of name.
+*/
+function countBy(items, groupDirection) {
+  let counts = [];
+  for (let item of items) {
+    let direction = groupDirection(item);
+    let known = counts.findIndex(c => c.direction == direction);
+    if (known == -1) {
+      counts.push({ direction, count: 1 });
+    } else {
+      counts[known].count++;
+    }
+  }
+  return counts;
 }
