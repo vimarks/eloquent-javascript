@@ -1,7 +1,7 @@
 /*
 # DOCUMENT STRUCTURE
   The DOM ( Document Object Model ) is a structure of nested objects, each with properties that contain their tag, their value, their child/parent, etc.
-The global binding document gives us access to these objects.  document's documentElement property refers to the object represented by the <HTML> tag.
+The global binding "document" gives us access to these objects.  document's documentElement property refers to the object represented by the <HTML> tag.
 document.documentElement in turn has the properties head and body.
 */
 
