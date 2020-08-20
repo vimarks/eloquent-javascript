@@ -400,7 +400,7 @@ Exercise #4
   look up the object with that direction and add one to the count.
 
   we filter the resulting counts array, removing any who's direction property points to "none"
-  and then reduce that array, returning the object with the highest count. 
+  and then reduce that array, returning the object with the highest count.
 */
 function dominantDirection(text) {
   let scripts = countBy(text, char => {
@@ -409,8 +409,9 @@ function dominantDirection(text) {
   }).filter(({ direction }) => direction !== "none");
 
   // scripts is now [{name:"ltr", count: 5}, {...}, {...}]
-  let mostChars = scripts.reduce((a, b) => (a.count > b.count ? a : b));
-  return mostChars.direction;
+  let mostChars = scripts.reduce((a, b) => (a.count > b.count ? a : b))
+    .direction;
+  return mostChars;
 }
 
 /*
