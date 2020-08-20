@@ -2,7 +2,7 @@
 # ENCAPSULATION
   a core concept of complexity management is breaking large complicated structures into small, easy to read, chunks.  Each
   chunk containing code that pertains to a single purpose that is accessed through its interface.
-  An interface is the set of bindings and methods that allow external forces to manipulate/use a chunks specific purpose.
+  An interface is the set of bindings and methods that allow external forces to manipulate/use a chunk's specific purpose.
 */
 
 /*
@@ -74,7 +74,8 @@ console.log(Object.getPrototypeOf(Object.prototype));
 when creating an object you can specify its prototype, or null if you wish to start from a clean slate.
 in this case protoRabbit is the prototype of killerRabbit, so any methods that protoRabbit has, killerRabbit also has.
 methods can be defined by just the function name, it is shorthand for, function speak(line).  All objects created with the protoRabbit as their prototype
-have access to the method speak, but the type property would be a property that only exists on instances of protoRabbit.
+have access to the method speak, but the type property would be a property that only exists on instances of protoRabbit -
+getting set like: this.type = type, in the constructor.  That line of code creates a type property and sets it to the variable type.
 */
 let protoRabbit = {
   speak(line) {
@@ -88,9 +89,9 @@ killerRabbit.speak("SKREEEE!");
 
 /*
 in order to make objects that have a shared prototype object you can use a constructor function, see below.
-The parameters to a constructor function are attributes that all objects in this class will have, but they values they point to may be different.
+The parameters to a constructor function are attributes that all objects in this class will have, but the values they point to may be different.
 For example all rabbits have a type, but a different type...therefore type is stored on the individual instances, not on the protoype.
-The constructor function also creates with a prototype and returns that object.
+The constructor function also creates with a prototype, which it gets from the  and returns that object.
 */
 
 function makeRabbit(type) {
@@ -104,6 +105,7 @@ the following paragraph is worth dissecting.
   "It is important to understand the distinction between the way a prototype is associated with a constructor (through its prototype property)
   and the way objects have a prototype (which can be found with Object.getPrototypeOf). The actual prototype of a constructor is Function.prototype
   since constructors are functions. Its prototype property holds the prototype used for instances created through it."
+
 all functions are objects, right? they are special objects that derive from Function.prototype, and we know that objects can have properties.
 There is a property that all functions get...all objects too, from their parent object, called prototype.  By default it points at an empty object that derives from the
 great ancestral prototype, Object.protype. When 'new' is placed before a function, that function is treated like a constructor.
@@ -122,7 +124,7 @@ let weirdRabbit = new Rabbit("weird");
 /*
 Object.getPrototypeOf() accesses the prototype property of whatever is in the parentheses.
 in the case of Rabbit, which is just a normal function...it's the baked in prototype
-but for weirdRabbit, because of the 'new' keyword Rabbit creates an instance or child of itself. Inserting itself into that instances prototype property
+but for weirdRabbit, because of the 'new' keyword Rabbit creates an instance or child of itself. Inserting itself into that instance's prototype property
 and giving it the personal attribute value, "weird".
 */
 console.log(Object.getPrototypeOf(Rabbit) == Function.prototype);
@@ -134,6 +136,7 @@ console.log(Object.getPrototypeOf(weirdRabbit) == Rabbit.prototype);
  In order to call a class's constructor function, write -  'new' 'class name'  one special thing the constructor keyword tells js to do is
  bind the constructor function with the name of the class.  Within the constructor function, a property can be added to all instances that
  are built through the class. In this case 'type'
+ It is within the constructor function that 'this' is bound to the instance, and this.'props' are created.
  */
 class Rabbit {
   constructor(type) {
@@ -208,6 +211,168 @@ console.log("Is toString's age known?", "toString" in ages);
 console.log(ages.toString());
 
 /*
-Polymorphism allows for flexible, dynamic, and reusable code.  It is based on the idea that code should know as little as possible about the
-object/s it deals with.
+Polymorphism allows for flexible, dynamic, and reusable code.  It is based on the idea that code 	should know as little as possible about the
+object/s it is dealing with. For instance, if a method, findCircumference appears on an object's interface, if you write it to expect a wheel,
+its brandname, tire-tread, radius, etc. That method would only work with wheels, but if you write it so that the method knows only what it needs
+to know, which in the case of finding circumference is radius, then! That method will work on any object that has a getRadius method on its interface.
+
+The resaon that loops can iterate over many different types of data types (strings, arrays) is because loops are looking for a very particular type
+of interface, if an object has that interface...it becomes iterable.
 */
+
+Rabbit.prototype.toString = function() {
+  return `a ${this.type} rabbit`;
+};
+
+console.log(String(blackRabbit));
+console.log(blackRabbit.toString());
+// → a black rabbit
+
+/*
+symbols are created through the function Symbol().  They are given a string parameter, but alwasy referred to via evaluating brackets
+instead of dot notation.  Property keys of objects can either be strings or symbols.  let sym = Symbol("type") rabbit[sym] = "killerRabbit"
+*/
+
+let sym = Symbol("name");
+console.log(sym == Symbol("name"));
+// → false
+Rabbit.prototype[sym] = 55;
+console.log(blackRabbit[sym]);
+// → 55
+
+/*
+symbols are unique and usable as properties, so they are great for naming default props that you don't want to get in the way of future props.
+once a symbol has been created through Symbol() it can be accessed by evaluating its bound variable.
+In the example below a symbol bound to 'toStringSymbol' is created, and then set as a property for Array.prototype.
+The property points to a function. Now all arrays have access to the function that [toStringSymbol] points to.
+*/
+
+const toStringSymbol = Symbol("toString");
+Array.prototype[toStringSymbol] = function() {
+  return `${this.length} cm of blue yarn`;
+};
+
+console.log([1, 2].toString());
+// → 1,2
+console.log([2, 2, 3, 4, 4][toStringSymbol]());
+// → 2 cm of blue yarn
+
+/*
+below is an object expression using the already created [toStringSymbol] which points to the above function.
+here we place the sybol as a prop into a newly made object, and replace its body with { return "a jute rope"}
+...not sure why you can replace the just the body like that.
+*/
+
+let stringObject = {
+  [toStringSymbol]() { return "a jute rope"; }
+};
+console.log(stringObject[toStringSymbol]());
+// → a jute rope
+
+/*
+The object given to a for/of loop is expeced to ba an iterable, meaning it is expected to have a method under the prop name: [Symbol.iterator]
+when [Symbol.iterator]() is called on an iterable object (strings,arrays,maps,sets).
+[Symbol.iterator]() is a function that produces an object that has the property "next".
+calling "next" returns an object with properties "value" and "done".
+"value" point to current value of the iterable.
+"done" flag is true when value = undefined, starts off false.                            (iterator)
+.next returns with a picture of the future, in order to go there you must have a pointer. pointer = iterable.next
+
+Symbol.iterator returns an object that is able to iterate through the object it was called upon.
+this object is a specialzed object: a class
+it has an interface with the method .next and attributes "done" and "value"
+each instance hase done and value props and a next method that somehow holds the value for the next element.
+keep in minde that Symbol.iterator() has access to an array, and is just iterating over an array in the background
+in order to create instances of Symbol.iterator() that correspond with the correct array index.
+*/
+
+let okIterator = "OK"[Symbol.iterator]();
+console.log(okIterator.next());
+// → {value: "O", done: false}
+console.log(okIterator.next())
+// → {value: "K", done: false}
+console.log(okIterator.next());
+// → {value: undefined, done: true}
+
+/*
+class Matrix is gonna produce matrix instances, 2 dimension representations of matrixes
+they have width, height and element attributes. element is a function that expects x and y coordinates and is used to fill in initial values with 'undefined'
+if the element param is not altered, by default class Matrix will add an undefined as the value of every x/y coordinate
+this could be set as any kind of function one might imagine
+*/
+
+class Matrix {
+  constructor(width, height, element = (x, y) => undefined) {
+    this.width = width;
+    this.height = height;
+    this.content = [];
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        this.content[y * width + x] = element(x, y);
+      }
+    }
+  }
+
+  get(x, y) {
+    return this.content[y * this.width + x];
+  }
+  set(x, y, value) {
+    this.content[y * this.width + x] = value;
+  }
+}
+/*
+MatrixIterator taks a Matrix instance as an attribute and has a next method.
+the next method, which all iterators have, returns ->  {x: x, y: y, value: this.matrix.get(this.x,this.y), done: true/false}
+this class creates an Iterator instance specific to a Matrix instance
+then function like for...of will expect calls to the iterable's next() to work.
+it expects a certain interface
+*/
+
+class MatrixIterator {
+  constructor(matrix) {
+    this.x = 0;
+    this.y = 0;
+    this.matrix = matrix;
+  }
+
+  next() {
+    if (this.y == this.matrix.height) return {done: true};
+
+    let value = {x: this.x,
+                 y: this.y,
+                 value: this.matrix.get(this.x, this.y)};
+    this.x++;
+    if (this.x == this.matrix.width) {
+      this.x = 0;
+      this.y++;
+    }
+    return {value, done: false};
+  }
+
+/*
+the code below sets the Symbol.iterator method of Matrix.prototype to return an instance of MatrixIterator(this)
+the only reason the for...or loop has access to {x,y,values} is because that is what MatrixIterator returns.
+for...of looks for the objects [Symbol.iterator] property, and in this case finds a function that returns a new MatrixIterator(this)
+for...of then calls .next of the matrix for as many times it has to before done: true
+*/
+
+Matrix.prototype[Symbol.iterator] = function() {
+  return new MatrixIterator(this);
+};
+
+/*
+the element param here returns a string displaying current x and y coordinates
+for...of access matrix's [Symbol.iterator] property and finds a function that returns a new MatrixIterator
+An iterator specific to that instance of matrix
+and being an iterator, MatrixIterator has a specific interface that for...of expects and can manipulate...iterate.
+*/
+  let matrix = new Matrix(2, 2, (x, y) => `value ${x},${y}`);
+for (let {x, y, value} of matrix) {
+  console.log(x, y, value);
+}
+// → 0 0 value 0,0
+// → 1 0 value 1,0
+// → 0 1 value 0,1
+// → 1 1 value 1,1
+}
