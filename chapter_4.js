@@ -137,7 +137,7 @@ If we do not return true after the fist line, we can assume that we are dealing 
 we could say that at this point that if either a or b are a primitive dt, they cannot be "===" (return false)
 we also have to deal with null... because typof null returns 'object', we have to check to see if either a or b are null.
 if either are, they cannot be equal because the only statement that returns true: null === null, was checked for on the previous line.
-OK, so now when we define keysA, keysB we know that we are dealing with two objects.
+OK, so now know we are dealing with two objects and we define keysA, keysB
 we get their keys into arrays, check their length
 loop through one of the key arrays...
 check to see if the key your are iterating over is included in the other array, if not... return false
